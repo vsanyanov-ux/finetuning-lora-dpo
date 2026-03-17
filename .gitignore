@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Model weights & checkpoints
+results/
+*.bin
+*.safetensors
+*.gguf
+
+# Datasets (downloaded from HuggingFace)
+data/
+
+# HuggingFace cache
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+wandb/
+runs/
+
+# Misc
+.env
+*.egg-info/
+dist/
+build/
