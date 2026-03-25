@@ -2,7 +2,7 @@
 
 Пайплайн тонкой настройки языковой модели **Qwen2.5-0.5B-Instruct** с использованием **QLoRA** (4-битная квантизация + LoRA-адаптеры) и выравнивание через **DPO (Direct Preference Optimization)** для повышения качества ответов.
 
-**Сложность:** ⭐⭐⭐⭐ (Senior) — Проект требует понимания работы LLM, квантизации (QLoRA), выравнивания моделей (RLHF/DPO) и архитектуры GPU (CUDA).
+**Сложность:** ⭐⭐⭐⭐ (Middle+) — Проект требует понимания работы LLM, квантизации (QLoRA), выравнивания моделей (RLHF/DPO) и архитектуры GPU (CUDA).
 
 > Проект #4 из видео [5 AI Engineer Projects to Build in 2026](https://www.youtube.com/watch?v=9WIsvEswZTk) — Aishwarya Srinivasan (ex-Google, Microsoft).
 
