@@ -40,7 +40,7 @@ def run_step(step_num: int):
     result = subprocess.run([sys.executable, script], check=True)
     elapsed = time.time() - start
 
-    print(f"\n✅ Step {step_num} ({name}) completed in {elapsed:.1f}s")
+    print(f"\n[DONE] Step {step_num} ({name}) completed in {elapsed:.1f}s")
     return result.returncode
 
 
@@ -50,7 +50,7 @@ def main():
                         help="Run only a specific step (1-4)")
     args = parser.parse_args()
 
-    print("🚀 Fine-Tuning with LoRA & DPO Pipeline")
+    print(">> Fine-Tuning with LoRA & DPO Pipeline")
     print("=" * 60)
 
     if args.step:
@@ -60,7 +60,7 @@ def main():
         for step_num in STEPS:
             run_step(step_num)
         total_elapsed = time.time() - total_start
-        print(f"\n🎉 Full pipeline completed in {total_elapsed:.1f}s")
+        print(f"\n[FINISH] Full pipeline completed in {total_elapsed:.1f}s")
 
 
 if __name__ == "__main__":

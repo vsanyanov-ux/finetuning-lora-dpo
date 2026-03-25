@@ -42,3 +42,4 @@ runs/
 *.egg-info/
 dist/
 build/
+colab_project.zip

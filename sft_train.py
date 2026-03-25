@@ -57,19 +57,23 @@ def main():
 
     # ── Load dataset ─────────────────────────────────────────────────────
     sft_path = os.path.join(DATA_DIR, "sft_dataset")
-    print(f"\n🔹 Loading SFT dataset from {sft_path}...")
+    print(f"\n>> Loading SFT dataset from {sft_path}...")
     dataset = load_from_disk(sft_path)
+    # Remove extra columns that might confuse SFTTrainer
+    cols_to_remove = [c for c in dataset["train"].column_names if c != "messages"]
+    if cols_to_remove:
+        dataset = dataset.remove_columns(cols_to_remove)
     print(f"   Train: {len(dataset['train'])}, Val: {len(dataset['validation'])}")
 
     # ── Load tokenizer ───────────────────────────────────────────────────
-    print(f"\n🔹 Loading tokenizer: {MODEL_NAME}")
+    print(f"\n>> Loading tokenizer: {MODEL_NAME}")
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "right"
 
     # ── Load model with quantization ─────────────────────────────────────
-    print(f"\n🔹 Loading model with 4-bit quantization: {MODEL_NAME}")
+    print(f"\n>> Loading model with 4-bit quantization: {MODEL_NAME}")
     bnb_config = create_bnb_config()
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
@@ -86,7 +90,7 @@ def main():
     lora_config = create_lora_config()
     model = get_peft_model(model, lora_config)
     trainable, total = model.get_nb_trainable_parameters()
-    print(f"\n📊 Trainable parameters: {trainable:,} / {total:,} "
+    print(f"\n[INFO] Trainable parameters: {trainable:,} / {total:,} "
           f"({100 * trainable / total:.2f}%)")
 
     # ── Training arguments ───────────────────────────────────────────────
@@ -96,7 +100,7 @@ def main():
         per_device_train_batch_size=SFT_BATCH_SIZE,
         gradient_accumulation_steps=SFT_GRADIENT_ACCUMULATION,
         learning_rate=SFT_LEARNING_RATE,
-        max_seq_length=SFT_MAX_SEQ_LENGTH,
+        max_length=SFT_MAX_SEQ_LENGTH,
         warmup_ratio=SFT_WARMUP_RATIO,
         logging_steps=SFT_LOGGING_STEPS,
         save_steps=SFT_SAVE_STEPS,
@@ -114,7 +118,7 @@ def main():
     )
 
     # ── Trainer ──────────────────────────────────────────────────────────
-    print("\n🔹 Starting SFT training...")
+    print("\n>> Starting SFT training...")
     trainer = SFTTrainer(
         model=model,
         args=training_args,
@@ -127,16 +131,16 @@ def main():
     trainer.train()
 
     # ── Save ─────────────────────────────────────────────────────────────
-    print(f"\n🔹 Saving model to {SFT_OUTPUT_DIR}...")
+    print(f"\n>> Saving model to {SFT_OUTPUT_DIR}...")
     trainer.save_model(SFT_OUTPUT_DIR)
     tokenizer.save_pretrained(SFT_OUTPUT_DIR)
 
-    print("\n🎉 SFT training complete!")
+    print("\nDONE: SFT training complete!")
     print(f"   Model saved to: {SFT_OUTPUT_DIR}")
 
     # ── Log final metrics ────────────────────────────────────────────────
     metrics = trainer.evaluate()
-    print(f"\n📊 Final eval loss: {metrics['eval_loss']:.4f}")
+    print(f"\n[INFO] Final eval loss: {metrics['eval_loss']:.4f}")
 
 
 if __name__ == "__main__":

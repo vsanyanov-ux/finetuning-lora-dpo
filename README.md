@@ -2,11 +2,13 @@
 
 Пайплайн тонкой настройки языковой модели **Qwen2.5-0.5B-Instruct** с использованием **QLoRA** (4-битная квантизация + LoRA-адаптеры) и выравнивание через **DPO (Direct Preference Optimization)** для повышения качества ответов.
 
+**Сложность:** ⭐⭐⭐⭐ (Senior) — Проект требует понимания работы LLM, квантизации (QLoRA), выравнивания моделей (RLHF/DPO) и архитектуры GPU (CUDA).
+
 > Проект #4 из видео [5 AI Engineer Projects to Build in 2026](https://www.youtube.com/watch?v=9WIsvEswZTk) — Aishwarya Srinivasan (ex-Google, Microsoft).
 
 ---
 
-## 🏗️ Архитектура
+## 📊 Диаграмма архитектуры (Mermaid)
 
 ```mermaid
 flowchart TB
@@ -89,7 +91,8 @@ python run_pipeline.py --step 3   # DPO выравнивание
 python run_pipeline.py --step 4   # Оценка
 ```
 
-> ⚠️ На Windows перед запуском установите: `$env:PYTHONIOENCODING='utf-8'`
+> ⚠️ **На Windows** перед запуском установите: `$env:PYTHONIOENCODING='utf-8'`
+> 💡 **Нет видеокарты NVIDIA?** Используйте Google Colab: загрузите все скрипты кроме папки `venv` и `data` (например, архивом `colab_project.zip`), выберите среду с **T4 GPU** и запустите пайплайн там.
 
 ---
 
@@ -118,15 +121,17 @@ python run_pipeline.py --step 4   # Оценка
 
 ---
 
-## 🔧 Ключевые технологии
+## 💻 Технологический стек проекта
 
-| Технология | Назначение |
+| Технология | Описание и Назначение |
 |------------|-----------|
-| **QLoRA** | 4-битная квантизация + LoRA для эффективного обучения на GPU с 8GB VRAM |
-| **SFT** | Supervised Fine-Tuning — обучение на парах prompt→completion |
-| **DPO** | Direct Preference Optimization — выравнивание по предпочтениям без reward model |
-| **PEFT** | Parameter-Efficient Fine-Tuning — обучение <1% параметров модели |
-| **TRL** | Transformer Reinforcement Learning — SFTTrainer + DPOTrainer |
+| **Python 3.10+** | Основной язык разработки |
+| **PyTorch & CUDA** | ML-фреймворк и вычисления на GPU |
+| **Hugging Face (`transformers`, `datasets`)** | Загрузка и управление моделями и датасетами |
+| **PEFT (Parameter-Efficient Fine-Tuning)** | Подключение адаптеров для обучения <1% параметров модели |
+| **QLoRA & bitsandbytes** | 4-битная квантизация (NF4) + LoRA для эффективного обучения в условиях ограниченной VRAM |
+| **TRL (Transformer Reinforcement Learning)** | Библиотека для пайплайнов выравнивания (`SFTTrainer` + `DPOTrainer`) |
+| **SFT & DPO** | Supervised Fine-Tuning (учится формату) и Direct Preference Optimization (учится предпочтениям человека) |
 
 ---
 

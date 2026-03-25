@@ -33,19 +33,19 @@ def main():
 
     # ── Load dataset ─────────────────────────────────────────────────────
     dpo_path = os.path.join(DATA_DIR, "dpo_dataset")
-    print(f"\n🔹 Loading DPO dataset from {dpo_path}...")
+    print(f"\n>> Loading DPO dataset from {dpo_path}...")
     dataset = load_from_disk(dpo_path)
     print(f"   Train: {len(dataset['train'])}, Val: {len(dataset['validation'])}")
 
     # ── Load tokenizer ───────────────────────────────────────────────────
-    print(f"\n🔹 Loading tokenizer from SFT checkpoint: {SFT_OUTPUT_DIR}")
+    print(f"\n>> Loading tokenizer from SFT checkpoint: {SFT_OUTPUT_DIR}")
     tokenizer = AutoTokenizer.from_pretrained(SFT_OUTPUT_DIR, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "left"  # DPO requires left-padding
 
     # ── Load base model with quantization ────────────────────────────────
-    print(f"\n🔹 Loading base model with 4-bit quantization: {MODEL_NAME}")
+    print(f"\n>> Loading base model with 4-bit quantization: {MODEL_NAME}")
     compute_dtype = getattr(torch, BNB_4BIT_COMPUTE_DTYPE)
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=LOAD_IN_4BIT,
@@ -62,7 +62,7 @@ def main():
     model.config.use_cache = False
 
     # ── Load SFT LoRA adapters ───────────────────────────────────────────
-    print(f"\n🔹 Loading SFT LoRA adapters from: {SFT_OUTPUT_DIR}")
+    print(f"\n>> Loading SFT LoRA adapters from: {SFT_OUTPUT_DIR}")
     model = PeftModel.from_pretrained(model, SFT_OUTPUT_DIR)
     model = model.merge_and_unload()  # Merge SFT adapters into the base model
 
@@ -77,7 +77,7 @@ def main():
     )
 
     # ── DPO Training ─────────────────────────────────────────────────────
-    print("\n🔹 Configuring DPO training...")
+    print("\n>> Configuring DPO training...")
     training_args = DPOConfig(
         output_dir=DPO_OUTPUT_DIR,
         num_train_epochs=DPO_EPOCHS,
@@ -103,7 +103,7 @@ def main():
     )
 
     # ── Trainer ──────────────────────────────────────────────────────────
-    print("\n🔹 Starting DPO training...")
+    print("\n>> Starting DPO training...")
     trainer = DPOTrainer(
         model=model,
         args=training_args,
@@ -117,16 +117,16 @@ def main():
     trainer.train()
 
     # ── Save ─────────────────────────────────────────────────────────────
-    print(f"\n🔹 Saving DPO model to {DPO_OUTPUT_DIR}...")
+    print(f"\n>> Saving DPO model to {DPO_OUTPUT_DIR}...")
     trainer.save_model(DPO_OUTPUT_DIR)
     tokenizer.save_pretrained(DPO_OUTPUT_DIR)
 
-    print("\n🎉 DPO training complete!")
+    print("\nDONE: DPO training complete!")
     print(f"   Model saved to: {DPO_OUTPUT_DIR}")
 
     # ── Log final metrics ────────────────────────────────────────────────
     metrics = trainer.evaluate()
-    print(f"\n📊 Final eval metrics:")
+    print(f"\n[INFO] Final eval metrics:")
     for k, v in metrics.items():
         if isinstance(v, float):
             print(f"   {k}: {v:.4f}")
