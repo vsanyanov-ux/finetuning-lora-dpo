@@ -187,7 +187,7 @@ def evaluate_variant(model, tokenizer, test_data: list[dict], variant_name: str)
         metrics_accum["non_empty"] += quality["non_empty"]
         metrics_accum["unique_ratio"] += quality["unique_ratio"]
 
-        if (i + 1) % 10 == 0 or i == 0:
+        if (i + 1) % 1 == 0 or i == 0:
             avg_f1 = metrics_accum["rouge_f1"] / (i + 1)
             avg_nonempty = metrics_accum["non_empty"] / (i + 1)
             print(f"   [{i+1:3d}/{total}] "
@@ -270,14 +270,20 @@ def main():
         print(f"\n  [!] DPO model not found at {DPO_OUTPUT_DIR}. Skipping.")
 
     for variant in variants:
-        model, tokenizer = load_model_and_tokenizer(variant)
-        metrics = evaluate_variant(model, tokenizer, test_data, variant.upper())
-        all_metrics[variant.upper()] = metrics
-
-        # Free memory
-        del model
-        del tokenizer
-        torch.cuda.empty_cache()
+        try:
+            model, tokenizer = load_model_and_tokenizer(variant)
+            metrics = evaluate_variant(model, tokenizer, test_data, variant.upper())
+            all_metrics[variant.upper()] = metrics
+            
+            # Free memory
+            del model
+            del tokenizer
+            torch.cuda.empty_cache()
+        except Exception as e:
+            print(f"\n[ERROR] Failed during variant '{variant}': {e}")
+            import traceback
+            traceback.print_exc()
+            break
 
     # Print results table
     print_comparison_table(all_metrics)

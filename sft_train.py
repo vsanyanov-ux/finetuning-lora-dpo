@@ -111,10 +111,7 @@ def main():
         lr_scheduler_type="cosine",
         gradient_checkpointing=True,
         report_to="none",
-        eval_strategy="steps",
-        eval_steps=SFT_SAVE_STEPS,
-        load_best_model_at_end=True,
-        metric_for_best_model="eval_loss",
+        eval_strategy="no",
     )
 
     # ── Trainer ──────────────────────────────────────────────────────────
@@ -128,7 +125,7 @@ def main():
     )
 
     # ── Train ────────────────────────────────────────────────────────────
-    trainer.train()
+    trainer.train(resume_from_checkpoint=True)
 
     # ── Save ─────────────────────────────────────────────────────────────
     print(f"\n>> Saving model to {SFT_OUTPUT_DIR}...")

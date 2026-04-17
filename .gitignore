@@ -36,10 +36,18 @@ desktop.ini
 *.log
 wandb/
 runs/
+full_eval_debug*.log
 
-# Misc
-.env
-*.egg-info/
-dist/
-build/
+# Results & Temp
+results/
+temp_res_*.json
+scratch/
+
+# Experimental Scripts
+check_ready.py
+debug_eval_sft.py
+debug_load.py
+demo_base_vs_chat.py
+quick_test.py
+quick_test_orchestrator.py
 colab_project.zip

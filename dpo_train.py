@@ -62,8 +62,26 @@ def main():
     model.config.use_cache = False
 
     # ── Load SFT LoRA adapters ───────────────────────────────────────────
-    print(f"\n>> Loading SFT LoRA adapters from: {SFT_OUTPUT_DIR}")
-    model = PeftModel.from_pretrained(model, SFT_OUTPUT_DIR)
+    abs_sft_path = os.path.abspath(SFT_OUTPUT_DIR)
+    print(f"\n>> Loading SFT LoRA adapters from: {abs_sft_path}")
+    
+    if not os.path.exists(abs_sft_path):
+        raise FileNotFoundError(
+            f"ERROR: SFT results not found at {abs_sft_path}. "
+            f"Did Step 2 (sft_train.py) complete successfully?"
+        )
+    
+    # Check for essential PEFT file
+    config_file = os.path.join(abs_sft_path, "adapter_config.json")
+    if not os.path.exists(config_file):
+        files = os.listdir(abs_sft_path)
+        raise FileNotFoundError(
+            f"ERROR: 'adapter_config.json' not found in {abs_sft_path}.\n"
+            f"Directory contains: {files}\n"
+            f"This usually means SFT training was interrupted and did not save the model."
+        )
+
+    model = PeftModel.from_pretrained(model, abs_sft_path)
     model = model.merge_and_unload()  # Merge SFT adapters into the base model
 
     # ── New LoRA config for DPO ──────────────────────────────────────────
@@ -85,7 +103,6 @@ def main():
         gradient_accumulation_steps=DPO_GRADIENT_ACCUMULATION,
         learning_rate=DPO_LEARNING_RATE,
         max_length=DPO_MAX_LENGTH,
-        max_prompt_length=DPO_MAX_PROMPT_LENGTH,
         beta=DPO_BETA,
         warmup_ratio=DPO_WARMUP_RATIO,
         logging_steps=DPO_LOGGING_STEPS,
@@ -97,9 +114,7 @@ def main():
         lr_scheduler_type="cosine",
         gradient_checkpointing=True,
         report_to="none",
-        eval_strategy="steps",
-        eval_steps=DPO_SAVE_STEPS,
-        load_best_model_at_end=True,
+        eval_strategy="no",
     )
 
     # ── Trainer ──────────────────────────────────────────────────────────
